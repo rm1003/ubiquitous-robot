@@ -1,0 +1,102 @@
+@startuml
+skinparam shadowing false
+skinparam BackgroundColor #FFFFFF
+skinparam DefaultFontColor #222222
+skinparam TitleFontColor #111111
+
+skinparam ActorBackgroundColor #F5F5F5
+skinparam ActorBorderColor #666666
+skinparam ActorFontColor #222222
+
+skinparam ParticipantBackgroundColor #F5F5F5
+skinparam ParticipantBorderColor #666666
+skinparam ParticipantFontColor #222222
+
+skinparam SequenceLifeLineBorderColor #888888
+skinparam SequenceLifeLineBackgroundColor #E0E0E0
+
+skinparam ArrowColor #555555
+skinparam ArrowFontColor #222222
+
+skinparam SequenceGroupBackgroundColor #E0E0E0
+skinparam SequenceGroupBodyBackgroundColor transparent
+skinparam SequenceGroupBorderColor #666666
+skinparam SequenceGroupHeaderFontColor #222222
+skinparam SequenceGroupFontColor #222222
+
+skinparam NoteBackgroundColor #FAFAFA
+skinparam NoteBorderColor #888888
+skinparam NoteFontColor #333333
+
+title Sequence Diagram - Main Execution Flow
+
+actor "CLI / User" as User
+participant "index.js" as Index
+participant "reporter : CidadesHTMLReport" as HTML
+participant "reporter : CidadesTXTReporter" as TXT
+
+User -> Index : node index.js [html | txt]
+activate Index
+
+Index -> Index : const [cmd, filename, format] = process.argv
+
+alt format === 'html'
+  Index -> HTML : new CidadesHTMLReport()
+  activate HTML
+  HTML --> Index : reporter
+  deactivate HTML
+
+  Index -> HTML : ler('./data/cidades-2.json')
+  activate HTML
+  HTML -> HTML : this.cidades = fs.readFileSync(caminho)
+  HTML --> Index
+  deactivate HTML
+
+  Index -> HTML : parse()
+  activate HTML
+  HTML -> HTML : this.cidades = JSON.parse(this.cidades)
+  HTML --> Index
+  deactivate HTML
+
+  Index -> HTML : reportar()
+  activate HTML
+  loop i = 0 .. this.cidades.length - 1
+    HTML -> HTML : append HTML list item for this.cidades[i]['Nome']
+  end
+  HTML --> Index : result (HTML string)
+  deactivate HTML
+
+  Index -> User : console.log(html)
+
+else format === 'txt'
+  Index -> TXT : new CidadesTXTReport() (CidadesTXTReporter)
+  activate TXT
+  TXT --> Index : reporter
+  deactivate TXT
+
+  Index -> TXT : ler('./data/cidades-2.json')
+  activate TXT
+  TXT -> TXT : this.cidades = fs.readFileSync(caminho)
+  TXT --> Index
+  deactivate TXT
+
+  Index -> TXT : parse()
+  activate TXT
+  TXT -> TXT : this.cidades = JSON.parse(this.cidades)
+  TXT --> Index
+  deactivate TXT
+
+  Index -> TXT : reportar()
+  activate TXT
+  loop i = 0 .. this.cidades.length - 1
+    TXT -> TXT : append '* ' + this.cidades[i]['Nome']
+  end
+  TXT --> Index : result (TXT string)
+  deactivate TXT
+
+  Index -> User : console.log(html)
+
+end
+
+deactivate Index
+@enduml

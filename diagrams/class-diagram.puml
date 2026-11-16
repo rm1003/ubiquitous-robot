@@ -1,0 +1,75 @@
+@startuml
+title Class Diagram - CI1221_TP2
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam BackgroundColor #FFFFFF
+skinparam DefaultFontColor #222222
+skinparam TitleFontColor #111111
+
+skinparam ClassBackgroundColor #F5F5F5
+skinparam ClassHeaderBackgroundColor #E0E0E0
+skinparam ClassBorderColor #666666
+skinparam ClassFontColor #222222
+skinparam ClassAttributeFontColor #333333
+skinparam ClassStereotypeFontColor #555555
+skinparam stereotypeCBackgroundColor #D0D0D0
+
+skinparam PackageBackgroundColor #FAFAFA
+skinparam PackageBorderColor #888888
+skinparam PackageFontColor #333333
+
+skinparam ArrowColor #555555
+skinparam ArrowFontColor #222222
+
+skinparam NoteBackgroundColor #FAFAFA
+skinparam NoteBorderColor #888888
+skinparam NoteFontColor #333333
+
+class "index.js" as Index <<module>> {
+  - cmd : string
+  - filename : string
+  - format : string
+}
+
+package "src" {
+  class CidadesHTMLReport {
+    + cidades : Buffer | Object[]
+    --
+    + ler(caminho : string) : void
+    + parse() : void
+    + reportar() : string
+  }
+
+  class CidadesTXTReporter {
+    + cidades : Buffer | Object[]
+    --
+    + ler(caminho : string) : void
+    + parse() : void
+    + reportar() : string
+  }
+}
+
+class "node:fs" as NodeFS <<module>> {
+  + readFileSync(path : string) : Buffer
+}
+
+Index ..> CidadesHTMLReport : instantiates\n(format === 'html')
+Index ..> CidadesTXTReporter : instantiates as CidadesTXTReport\n(format === 'txt')
+
+CidadesHTMLReport ..> NodeFS : imports & calls readFileSync
+CidadesTXTReporter ..> NodeFS : imports & calls readFileSync
+
+note bottom of CidadesHTMLReport
+  Defined in src/CidadesHTMLReporter.js
+  (class name is CidadesHTMLReport).
+  Formats city names ('Nome') as HTML.
+end note
+
+note bottom of CidadesTXTReporter
+  Defined in src/CidadesTXTReporter.js
+  (imported in index.js as CidadesTXTReport).
+  Formats city names ('Nome') as plain text.
+end note
+
+@enduml
