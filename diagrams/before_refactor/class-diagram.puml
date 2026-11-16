@@ -1,5 +1,5 @@
 @startuml
-title Class Diagram - CI1221_TP2
+title Diagrama de Classes
 
 skinparam shadowing false
 skinparam classAttributeIconSize 0
@@ -22,12 +22,7 @@ skinparam PackageFontColor #333333
 skinparam ArrowColor #555555
 skinparam ArrowFontColor #222222
 
-skinparam NoteBackgroundColor #FAFAFA
-skinparam NoteBorderColor #888888
-skinparam NoteFontColor #333333
-
 class "index.js" as Index <<module>> {
-  - cmd : string
   - filename : string
   - format : string
 }
@@ -50,26 +45,7 @@ package "src" {
   }
 }
 
-class "node:fs" as NodeFS <<module>> {
-  + readFileSync(path : string) : Buffer
-}
-
-Index ..> CidadesHTMLReport : instantiates\n(format === 'html')
-Index ..> CidadesTXTReporter : instantiates as CidadesTXTReport\n(format === 'txt')
-
-CidadesHTMLReport ..> NodeFS : imports & calls readFileSync
-CidadesTXTReporter ..> NodeFS : imports & calls readFileSync
-
-note bottom of CidadesHTMLReport
-  Defined in src/CidadesHTMLReporter.js
-  (class name is CidadesHTMLReport).
-  Formats city names ('Nome') as HTML.
-end note
-
-note bottom of CidadesTXTReporter
-  Defined in src/CidadesTXTReporter.js
-  (imported in index.js as CidadesTXTReport).
-  Formats city names ('Nome') as plain text.
-end note
+Index ..> CidadesHTMLReport : (format === 'html')
+Index ..> CidadesTXTReporter : (format === 'txt')
 
 @enduml

@@ -28,7 +28,7 @@ skinparam NoteBackgroundColor #FAFAFA
 skinparam NoteBorderColor #888888
 skinparam NoteFontColor #333333
 
-title Sequence Diagram - Main Execution Flow
+title Diagrama de Sequência - Fluxo Principal 
 
 actor "CLI / User" as User
 participant "index.js" as Index
