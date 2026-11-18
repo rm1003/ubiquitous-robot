@@ -1,0 +1,94 @@
+@startuml
+skinparam shadowing false
+skinparam BackgroundColor #FFFFFF
+skinparam DefaultFontColor #222222
+skinparam TitleFontColor #111111
+
+skinparam ActorBackgroundColor #F5F5F5
+skinparam ActorBorderColor #666666
+skinparam ActorFontColor #222222
+
+skinparam ParticipantBackgroundColor #F5F5F5
+skinparam ParticipantBorderColor #666666
+skinparam ParticipantFontColor #222222
+
+skinparam SequenceLifeLineBorderColor #888888
+skinparam SequenceLifeLineBackgroundColor #E0E0E0
+
+skinparam ArrowColor #555555
+skinparam ArrowFontColor #222222
+
+skinparam SequenceGroupBackgroundColor #E0E0E0
+skinparam SequenceGroupBodyBackgroundColor transparent
+skinparam SequenceGroupBorderColor #666666
+skinparam SequenceGroupHeaderFontColor #222222
+skinparam SequenceGroupFontColor #222222
+
+skinparam NoteBackgroundColor #FAFAFA
+skinparam NoteBorderColor #888888
+skinparam NoteFontColor #333333
+
+title Diagrama de Sequência - Fluxo Principal (Após Refatoração)
+
+actor "CLI / User" as User
+participant "index.js" as Index
+participant "FormatterFactory" as FFactory
+participant "ParserFactory" as PFactory
+participant "reader : Reader" as Reader
+participant "generator : ReportGenerator" as Generator
+participant "parser : Parser" as Parser
+participant "formatter : Reporter" as Formatter
+
+User -> Index : node index.js <formato> [arquivo]
+activate Index
+
+Index -> Index : lê formato e caminho de process.argv
+
+alt formato não informado
+  Index -> User : console.error(uso) e sai com código 1
+else formato informado
+  group try
+    Index -> FFactory : criar(formato)
+    activate FFactory
+    FFactory --> Index : formatter
+    deactivate FFactory
+
+    Index -> PFactory : criar(caminho)
+    activate PFactory
+    PFactory --> Index : parser
+    deactivate PFactory
+
+    Index -> Reader : new FileReader()
+    Index -> Generator : new ReportGenerator(reader, parser, formatter)
+
+    Index -> Generator : gerar(caminho)
+    activate Generator
+
+    Generator -> Reader : ler(caminho)
+    activate Reader
+    Reader --> Generator : conteudo (string)
+    deactivate Reader
+
+    Generator -> Parser : parse(conteudo)
+    activate Parser
+    Parser --> Generator : cidades (string[])
+    deactivate Parser
+
+    Generator -> Formatter : reportar(cidades)
+    activate Formatter
+    Formatter --> Generator : resultado (string)
+    deactivate Formatter
+
+    Generator --> Index : resultado (string)
+    deactivate Generator
+
+    Index -> User : console.log(resultado)
+  end
+
+  group catch (formato inválido, extensão não suportada, arquivo inexistente, conteúdo inválido)
+    Index -> User : console.error("Erro: ...") e código de saída 1
+  end
+end
+
+deactivate Index
+@enduml

@@ -1,0 +1,127 @@
+@startuml
+title Diagrama de Classes (Após Refatoração)
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam BackgroundColor #FFFFFF
+skinparam DefaultFontColor #222222
+skinparam TitleFontColor #111111
+
+skinparam ClassBackgroundColor #F5F5F5
+skinparam ClassHeaderBackgroundColor #E0E0E0
+skinparam ClassBorderColor #666666
+skinparam ClassFontColor #222222
+skinparam ClassAttributeFontColor #333333
+skinparam ClassStereotypeFontColor #555555
+skinparam stereotypeCBackgroundColor #D0D0D0
+skinparam stereotypeIBackgroundColor #D0D0D0
+
+skinparam PackageBackgroundColor #FAFAFA
+skinparam PackageBorderColor #888888
+skinparam PackageFontColor #333333
+
+skinparam ArrowColor #555555
+skinparam ArrowFontColor #222222
+
+class "index.js" as Index <<module>> {
+  - formato : string
+  - caminho : string
+}
+
+package "src" {
+  class ReportGenerator {
+    - reader : Reader
+    - parser : Parser
+    - formatter : Reporter
+    --
+    + constructor(reader, parser, formatter)
+    + gerar(caminho : string) : string
+  }
+
+  package "factories" {
+    class FormatterFactory {
+      - formatters : Map
+      --
+      + registrar(formato : string, ClasseFormatter) : void
+      + criar(formato : string) : Reporter
+    }
+
+    class ParserFactory {
+      - parsers : Map
+      --
+      + registrar(extensao : string, ClasseParser) : void
+      + criar(caminho : string) : Parser
+    }
+  }
+
+  package "readers" {
+    abstract class Reader {
+      + {abstract} ler(caminho : string) : string
+    }
+
+    class FileReader {
+      + ler(caminho : string) : string
+    }
+  }
+
+  package "parsers" {
+    abstract class Parser {
+      + {abstract} parse(conteudo : string) : string[]
+    }
+
+    class JsonParser {
+      + parse(conteudo : string) : string[]
+    }
+
+    class CsvParser {
+      + parse(conteudo : string) : string[]
+    }
+
+    class TsvParser {
+      + parse(conteudo : string) : string[]
+    }
+  }
+
+  package "reporters" {
+    abstract class Reporter {
+      + {abstract} reportar(cidades : string[]) : string
+    }
+
+    class CidadesHTMLReporter {
+      + reportar(cidades : string[]) : string
+    }
+
+    class CidadesTXTReporter {
+      + reportar(cidades : string[]) : string
+    }
+
+    class CidadesMarkdownReporter {
+      + reportar(cidades : string[]) : string
+      + escapar(texto : string) : string
+    }
+  }
+}
+
+Index ..> FormatterFactory : usa
+Index ..> ParserFactory : usa
+Index ..> FileReader : instancia
+Index ..> ReportGenerator : instancia e executa
+
+FormatterFactory ..> Reporter : cria
+ParserFactory ..> Parser : cria
+
+ReportGenerator --> Reader : reader
+ReportGenerator --> Parser : parser
+ReportGenerator --> Reporter : formatter
+
+Reader <|-- FileReader
+
+Parser <|-- JsonParser
+Parser <|-- CsvParser
+Parser <|-- TsvParser
+
+Reporter <|-- CidadesHTMLReporter
+Reporter <|-- CidadesTXTReporter
+Reporter <|-- CidadesMarkdownReporter
+
+@enduml

@@ -1,16 +1,8 @@
-import * as fs from 'node:fs';
+import Reporter from './Reporter.js';
 
-export default class CidadesHTMLReport {
+export default class CidadesHTMLReporter extends Reporter {
 
-  ler (caminho) {
-    this.cidades = fs.readFileSync(caminho);
-  }
-
-  parse () {
-    this.cidades = JSON.parse(this.cidades);
-  }
-
-  reportar() {
+  reportar(cidades) {
     let result = `
   <!DOCTYPE HTML>
   <html>
@@ -23,8 +15,8 @@ export default class CidadesHTMLReport {
       <ul>
   `;
 
-    for (let i = 0; i < this.cidades.length; i++) {
-      result += '     <li>' + this.cidades[i]['Nome'] + '</li>\n';
+    for (const cidade of cidades) {
+      result += '     <li>' + cidade + '</li>\n';
     }
 
     result += `
